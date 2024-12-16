@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import axiosInstance from '../../axiosInstance';
+import axios from 'axios';
 
 const MangaDetails = () => {
     const { id } = useParams();
@@ -15,8 +15,8 @@ const MangaDetails = () => {
         const fetchMangaDetails = async () => {
             try {
                 setLoading(true);
-                const mangaResponse = await axiosInstance.get(`/mangadex/manga/${id}`);
-                const chaptersResponse = await axiosInstance.get(`/mangadex/chapter?manga=${id}&limit=100`);
+                const mangaResponse = await axios.get(`https://api.mangadex.org/manga/${id}`);
+                const chaptersResponse = await axios.get(`https://api.mangadex.org/chapter?manga=${id}&limit=100`);
                 setMangaDetails(mangaResponse.data.data);
                 setChapters(chaptersResponse.data.data);
             } catch (err) {

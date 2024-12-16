@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axiosInstance from '../../axiosInstance';
+import axios from 'axios';
 
 const MangaDetailsChapter = () => {
     const { id } = useParams(); // The chapter ID from the URL
@@ -16,11 +16,11 @@ const MangaDetailsChapter = () => {
                 setError(null);
 
                 // Fetch chapter details (first request)
-                const chapterResponse = await axiosInstance.get(`/mangadex/chapter/${id}`);
+                const chapterResponse = await axios.get(`https://api.mangadex.org/chapter/${id}`);
                 const chapterData = chapterResponse.data.data;
 
                 // Fetch server info (second request)
-                const serverResponse = await axiosInstance.get(`/mangadex/at-home/server/${id}`);
+                const serverResponse = await axios.get(`https://api.mangadex.org/at-home/server/${id}`);
 
                 if (!serverResponse || !serverResponse.data) {
                     setError('No server data returned.');
