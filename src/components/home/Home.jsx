@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
+// Create an axios instance with custom headers
+const axiosInstance = axios.create({
+  headers: {
+    'User-Agent': 'YourAppName/1.0 (yourapp@example.com)',  // Replace with your app's name and contact
+  },
+});
+
 const Home = () => {
     const [manhwaList, setManhwaList] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -10,15 +17,14 @@ const Home = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // const { id } = useParams();
-
+    // Fetch manhwa data with the axiosInstance
     const fetchManhwaData = async (page) => {
         try {
             setLoading(true);
             setError(null);
 
             const offset = (page - 1) * itemsPerPage;
-            const response = await axios.get(`/mangadex/manga?limit=${itemsPerPage}&offset=${offset}`);
+            const response = await axiosInstance.get(`https://api.mangadex.org/manga?limit=${itemsPerPage}&offset=${offset}`);
 
             // Fetch cover images, authors, and artists
             const manhwaDataWithDetails = await Promise.all(
@@ -30,7 +36,7 @@ const Home = () => {
                     let coverFileName = null;
                     if (coverRelationship) {
                         try {
-                            const coverResponse = await axios.get(`/mangadex/cover/${coverRelationship.id}`);
+                            const coverResponse = await axiosInstance.get(`https://api.mangadex.org/cover/${coverRelationship.id}`);
                             coverFileName = coverResponse.data.data.attributes.fileName;
                         } catch (coverError) {
                             console.error(`Error fetching cover for ${manhwa.id}:`, coverError);

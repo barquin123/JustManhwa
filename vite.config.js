@@ -1,18 +1,26 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+// vite.config.js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // Proxy requests to /mangadex to the MangaDex API
       '/mangadex': {
-        target: 'https://api.mangadex.org', // Target base URL for MangaDex API
-        changeOrigin: true, // Ensure the origin header is correctly set
-        rewrite: (path) => path.replace(/^\/mangadex/, ''), // Remove the /mangadex prefix
-        secure: false, // Set to true if using HTTPS and SSL validation is needed
-      },
-    },
-  },
+        target: 'https://api.mangadex.org',
+        changeOrigin: true,
+        secure: true,
+        // Transparent proxy to avoid adding `Via` header
+        ws: true,
+        rewrite: (path) => path.replace(/^\/mangadex/, ''),
+        // Ensure no Via header is added
+        configure: (proxy, options) => {
+          // Optionally, you could modify the request here to strip the `Via` header if needed
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            proxyReq.removeHeader('Via');
+          });
+        }
+      }
+    }
+  }
 });
