@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import axiosInstance from '../services/axiosInstance'; // Adjust the import path as needed
+import axiosInstance from '../../axiosInstance';
 
 const MangaDetails = () => {
     const { id } = useParams();

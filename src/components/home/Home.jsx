@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import axiosInstance from './axiosInstance'; // Import the custom axios instance
 import { Link } from 'react-router-dom';
+import axiosInstance from '../../axiosInstance';
 
 const Home = () => {
   const [manhwaList, setManhwaList] = useState([]);
