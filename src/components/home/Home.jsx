@@ -18,7 +18,7 @@ const Home = () => {
             setError(null);
 
             const offset = (page - 1) * itemsPerPage;
-            const response = await axios.get(`https://api.mangadex.org/manga?limit=${itemsPerPage}&offset=${offset}`);
+            const response = await axios.get(`/mangadex/manga?limit=${itemsPerPage}&offset=${offset}`);
 
             // Fetch cover images, authors, and artists
             const manhwaDataWithDetails = await Promise.all(
@@ -30,7 +30,7 @@ const Home = () => {
                     let coverFileName = null;
                     if (coverRelationship) {
                         try {
-                            const coverResponse = await axios.get(`https://api.mangadex.org/cover/${coverRelationship.id}`);
+                            const coverResponse = await axios.get(`/mangadex/cover/${coverRelationship.id}`);
                             coverFileName = coverResponse.data.data.attributes.fileName;
                         } catch (coverError) {
                             console.error(`Error fetching cover for ${manhwa.id}:`, coverError);

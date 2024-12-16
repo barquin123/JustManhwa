@@ -16,11 +16,11 @@ const MangaDetailsChapter = () => {
                 setError(null);
 
                 // Fetch chapter details (first request)
-                const chapterResponse = await axios.get(`https://api.mangadex.org/chapter/${id}`);
+                const chapterResponse = await axios.get(`/mangadex/chapter/${id}`);
                 const chapterData = chapterResponse.data.data;
 
                 // Fetch server info (second request)
-                const serverResponse = await axios.get(`https://api.mangadex.org/at-home/server/${id}`);
+                const serverResponse = await axios.get(`/mangadex/at-home/server/${id}`);
 
                 if (!serverResponse || !serverResponse.data) {
                     setError('No server data returned.');

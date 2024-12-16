@@ -15,8 +15,8 @@ const MangaDetails = () => {
         const fetchMangaDetails = async () => {
             try {
                 setLoading(true);
-                const mangaResponse = await axios.get(`https://api.mangadex.org/manga/${id}`);
-                const chaptersResponse = await axios.get(`https://api.mangadex.org/chapter?manga=${id}&limit=100`);
+                const mangaResponse = await axios.get(`/mangadex/manga/${id}`);
+                const chaptersResponse = await axios.get(`/mangadex/chapter?manga=${id}&limit=100`);
                 setMangaDetails(mangaResponse.data.data);
                 setChapters(chaptersResponse.data.data);
             } catch (err) {
