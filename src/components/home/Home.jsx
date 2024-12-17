@@ -10,8 +10,6 @@ const Home = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // const { id } = useParams();
-
     const fetchManhwaData = async (page) => {
         try {
             setLoading(true);
@@ -100,16 +98,15 @@ const Home = () => {
                 {manhwaList.map((manhwa) => (
                     <li className='min-h-96 mb-5 max-w-[384px]' key={manhwa.id}>
                         <Link to={`/details/${manhwa.id}`}>
-                        {manhwa.coverFileName ? (
-                            
-                            <img
-                                className='max-w-96 m-auto'
-                                src={`https://uploads.mangadex.org/covers/${manhwa.id}/${manhwa.coverFileName}`}
-                                alt={`${manhwa.attributes?.title?.en} cover`}
-                            />
-                        ) : (
-                            <p>No cover available</p>
-                        )}
+                            {manhwa.coverFileName ? (
+                                <img
+                                    className='max-w-96 m-auto'
+                                    src={`https://uploads.mangadex.org/covers/${manhwa.id}/${manhwa.coverFileName}`}
+                                    alt={`${manhwa.attributes?.title?.en} cover`}
+                                />
+                            ) : (
+                                <p>No cover available</p>
+                            )}
                         </Link>
                         <h2 className='font-bold text-xl'>{manhwa.attributes?.title?.en || 'Untitled'}</h2>
                         <p>
