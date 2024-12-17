@@ -9,6 +9,7 @@ const Home = () => {
     const [descriptionStates, setDescriptionStates] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+    const originalLanguage = 'ko';
 
     const fetchManhwaData = async (page) => {
         try {
@@ -16,7 +17,7 @@ const Home = () => {
             setError(null);
 
             const offset = (page - 1) * itemsPerPage;
-            const response = await axios.get(`https://mangareader-backend.onrender.com/api/manga/manga?limit=${itemsPerPage}&offset=${offset}`);
+            const response = await axios.get(`https://mangareader-backend.onrender.com/api/manga/manga?originalLanguage[]=${originalLanguage}&limit=${itemsPerPage}&offset=${offset}`);
 
             // Fetch cover images, authors, and artists
             const manhwaDataWithDetails = await Promise.all(
