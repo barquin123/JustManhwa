@@ -101,7 +101,7 @@ const Home = () => {
                             {manhwa.coverFileName ? (
                                 <img
                                     className='max-w-96 m-auto'
-                                    src={`https://mangareader-backend.onrender.com/api/proxy-image/${encodeURIComponent(manhwa.id)}/${encodeURIComponent(manhwa.coverFileName)}`}
+                                    src={`https://mangareader-backend.onrender.com/api/proxy-image/${manhwa.id}/${manhwa.coverFileName}`}
                                     alt={`${manhwa.attributes?.title?.en} cover`}
                                 />
                             ) : (
