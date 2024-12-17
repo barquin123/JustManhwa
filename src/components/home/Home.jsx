@@ -91,7 +91,7 @@ const Home = () => {
 
     return (
         <div className='max-w-screen-lg m-auto'>
-            <h1 className='text-center font-bold text-2xl mb-6'>Manga List</h1>
+            <h1 className='text-center font-bold text-2xl mb-6'>Manhwa List</h1>
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
 
