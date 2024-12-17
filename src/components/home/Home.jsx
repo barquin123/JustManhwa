@@ -101,7 +101,7 @@ const Home = () => {
                             {manhwa.coverFileName ? (
                                 <img
                                     className='max-w-96 m-auto'
-                                    src={`https://uploads.mangadex.org/covers/${manhwa.id}/${manhwa.coverFileName}`}
+                                    src={`https://mangareader-backend.onrender.com/api/proxy-image/${encodeURIComponent(manhwa.coverFileName)}`}
                                     alt={`${manhwa.attributes?.title?.en} cover`}
                                 />
                             ) : (
