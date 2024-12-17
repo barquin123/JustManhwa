@@ -3,6 +3,7 @@ import './App.css'
 import Home from './components/home/Home'
 import MangaDetails from './components/mangaDetails/MangaDetails'
 import MangaDetailsChapter from './components/mangaDetails/mangaDetailsChapter'
+import Header from './components/header/header'
 function App() {
 
   const routerArray = [
@@ -29,11 +30,8 @@ function App() {
   return (
     <>
       <div className="">
-        <div className="">
-          <div className="">
+            <Header />
             {routesElement}
-          </div>
-        </div>
       </div>
     </>
   )
