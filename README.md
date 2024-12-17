@@ -1,8 +1,11 @@
-# React + Vite
+# mangaReader
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+just trying out a free API for projects and learning 
 
-Currently, two official plugins are available:
+to try
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+clone the repo
+
+npm install + npm run dev
+
+see for your self 
