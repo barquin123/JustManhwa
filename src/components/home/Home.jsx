@@ -101,7 +101,7 @@ const Home = () => {
                             {manhwa.coverFileName ? (
                                 <img
                                     className='max-w-96 m-auto'
-                                    src={`https://mangareader-backend.onrender.com/api/proxy-image/${encodeURIComponent(manhwa.coverFileName)}`}
+                                    src={`https://mangareader-backend.onrender.com/api/proxy-image/${encodeURIComponent(manhwa.id)}/${encodeURIComponent(manhwa.coverFileName)}`}
                                     alt={`${manhwa.attributes?.title?.en} cover`}
                                 />
                             ) : (
@@ -114,7 +114,7 @@ const Home = () => {
                             {descriptionStates[manhwa.id]
                                 ? manhwa.attributes?.description?.en || 'No description available.'
                                 : truncatedDescription(manhwa.attributes?.description?.en, 100)}
-                        </p>
+                        </p> 
                         {manhwa.attributes?.description?.en &&
                             manhwa.attributes.description.en.length > 100 && (
                                 <button onClick={() => toggleDescription(manhwa.id)}>
