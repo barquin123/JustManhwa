@@ -9,7 +9,7 @@ const Search = () => {
     const handleSearch = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://mangareader-backend.onrender.com/api/manga/search', {
+            const response = await axios.get(`https://mangareader-backend.onrender.com/api/manga/manga?title=${title}`, {
                 params: { title, limit: 10, offset: 0 },
             });
             setMangaList(response.data.data);
