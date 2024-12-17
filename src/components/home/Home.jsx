@@ -3,32 +3,27 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
-    const [mangaList, setMangaList] = useState([]);
+    const [manhwaList, setManhwaList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [descriptionStates, setDescriptionStates] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    const fetchMangaData = async (page) => {
+    // const { id } = useParams();
+
+    const fetchManhwaData = async (page) => {
         try {
             setLoading(true);
             setError(null);
 
             const offset = (page - 1) * itemsPerPage;
-
-            // Use your backend proxy server to fetch manga data
-            const response = await axios.get(`https://mangareader-backend.onrender.com/api/manga/manga`, {
-                params: {
-                    limit: itemsPerPage,
-                    offset: offset,
-                },
-            });
+            const response = await axios.get(`https://mangareader-backend.onrender.com/api/manga/manga?limit=${itemsPerPage}&offset=${offset}`);
 
             // Fetch cover images, authors, and artists
-            const mangaDataWithDetails = await Promise.all(
-                response.data.data.map(async (manga) => {
-                    const relationships = manga.relationships;
+            const manhwaDataWithDetails = await Promise.all(
+                response.data.data.map(async (manhwa) => {
+                    const relationships = manhwa.relationships;
 
                     // Fetch cover art
                     const coverRelationship = relationships.find((rel) => rel.type === 'cover_art');
@@ -38,7 +33,7 @@ const Home = () => {
                             const coverResponse = await axios.get(`https://mangareader-backend.onrender.com/api/manga/cover/${coverRelationship.id}`);
                             coverFileName = coverResponse.data.data.attributes.fileName;
                         } catch (coverError) {
-                            console.error(`Error fetching cover for ${manga.id}:`, coverError);
+                            console.error(`Error fetching cover for ${manhwa.id}:`, coverError);
                         }
                     }
 
@@ -54,14 +49,14 @@ const Home = () => {
                         .join(', ') || 'Unknown Artist';
 
                     return {
-                        ...manga,
+                        ...manhwa,
                         coverFileName,
                         authors,
                         artists,
                     };
                 })
             );
-            setMangaList(mangaDataWithDetails);
+            setManhwaList(manhwaDataWithDetails);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -70,7 +65,7 @@ const Home = () => {
     };
 
     useEffect(() => {
-        fetchMangaData(currentPage);
+        fetchManhwaData(currentPage);
     }, [currentPage]);
 
     const handleNextPage = () => {
@@ -102,34 +97,35 @@ const Home = () => {
             {error && <p>Error: {error}</p>}
 
             <ul className='flex flex-wrap gap-4 justify-evenly'>
-                {mangaList.map((manga) => (
-                    <li className='min-h-96 mb-5 max-w-[384px]' key={manga.id}>
-                        <Link to={`/details/${manga.id}`}>
-                            {manga.coverFileName ? (
-                                <img
-                                    className='max-w-96 m-auto'
-                                    src={`https://uploads.mangadex.org/covers/${manga.id}/${manga.coverFileName}`}
-                                    alt={`${manga.attributes?.title?.en} cover`}
-                                />
-                            ) : (
-                                <p>No cover available</p>
-                            )}
+                {manhwaList.map((manhwa) => (
+                    <li className='min-h-96 mb-5 max-w-[384px]' key={manhwa.id}>
+                        <Link to={`/details/${manhwa.id}`}>
+                        {manhwa.coverFileName ? (
+                            
+                            <img
+                                className='max-w-96 m-auto'
+                                src={`https://uploads.mangadex.org/covers/${manhwa.id}/${manhwa.coverFileName}`}
+                                alt={`${manhwa.attributes?.title?.en} cover`}
+                            />
+                        ) : (
+                            <p>No cover available</p>
+                        )}
                         </Link>
-                        <h2 className='font-bold text-xl'>{manga.attributes?.title?.en || 'Untitled'}</h2>
+                        <h2 className='font-bold text-xl'>{manhwa.attributes?.title?.en || 'Untitled'}</h2>
                         <p>
                             <strong>Description:</strong>{' '}
-                            {descriptionStates[manga.id]
-                                ? manga.attributes?.description?.en || 'No description available.'
-                                : truncatedDescription(manga.attributes?.description?.en, 100)}
+                            {descriptionStates[manhwa.id]
+                                ? manhwa.attributes?.description?.en || 'No description available.'
+                                : truncatedDescription(manhwa.attributes?.description?.en, 100)}
                         </p>
-                        {manga.attributes?.description?.en &&
-                            manga.attributes.description.en.length > 100 && (
-                                <button onClick={() => toggleDescription(manga.id)}>
-                                    {descriptionStates[manga.id] ? 'See Less' : 'See More'}
+                        {manhwa.attributes?.description?.en &&
+                            manhwa.attributes.description.en.length > 100 && (
+                                <button onClick={() => toggleDescription(manhwa.id)}>
+                                    {descriptionStates[manhwa.id] ? 'See Less' : 'See More'}
                                 </button>
                             )}
-                        <p><strong>Author(s):</strong> {manga.authors}</p>
-                        <p><strong>Artist(s):</strong> {manga.artists}</p>
+                        <p><strong>Author(s):</strong> {manhwa.authors}</p>
+                        <p><strong>Artist(s):</strong> {manhwa.artists}</p>
                     </li>
                 ))}
             </ul>
