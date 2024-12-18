@@ -22,7 +22,6 @@ const Search = () => {
 
     return (
         <div>
-            <h1>Search Manga</h1>
             <input
                 type="text"
                 value={title}

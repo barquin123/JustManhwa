@@ -8,17 +8,16 @@ const MangaDetails = () => {
     const [chapters, setChapters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const chaptersPerPage = 10;
+    const apiLimit = 100; // API fetch limit
+    const transLang = 'en'; // Translated language
 
+    // Fetch manga details
     useEffect(() => {
         const fetchMangaDetails = async () => {
             try {
                 setLoading(true);
                 const mangaResponse = await axios.get(`https://mangareader-backend.onrender.com/api/manga/manga/${id}`);
-                const chaptersResponse = await axios.get(`https://mangareader-backend.onrender.com/api/manga/chapter?manga=${id}&limit=100`);
                 setMangaDetails(mangaResponse.data.data);
-                setChapters(chaptersResponse.data.data);
             } catch (err) {
                 setError(`Failed to load manga details: ${err.message}`);
             } finally {
@@ -28,40 +27,64 @@ const MangaDetails = () => {
         fetchMangaDetails();
     }, [id]);
 
-    const paginatedChapters = chapters.slice(
-        (currentPage - 1) * chaptersPerPage,
-        currentPage * chaptersPerPage
-    );
+    // Fetch all chapters
+    const fetchAllChapters = async () => {
+        let offset = 0;
+        let fetchedChapters = [];
+        try {
+            setLoading(true);
 
-    const handleNextPage = () => currentPage * chaptersPerPage < chapters.length && setCurrentPage((prev) => prev + 1);
-    const handlePreviousPage = () => currentPage > 1 && setCurrentPage((prev) => prev - 1);
+            // Keep fetching until all chapters are retrieved
+            while (true) {
+                const response = await axios.get(
+                    `https://mangareader-backend.onrender.com/api/manga/chapter?manga=${id}&limit=${apiLimit}&translatedLanguage[]=${transLang}&offset=${offset}`
+                );
+                const newChapters = response.data.data;
+                fetchedChapters = [...fetchedChapters, ...newChapters];
 
-    if (loading) return <p>Loading...</p>;
+                // Break the loop if fewer than `apiLimit` chapters are fetched
+                if (newChapters.length < apiLimit) break;
+
+                offset += apiLimit; // Update the offset for the next batch
+            }
+
+            // Sort chapters by `chapter` in descending order
+            fetchedChapters.sort((a, b) => {
+                const chapterA = parseFloat(a.attributes?.chapter || 0);
+                const chapterB = parseFloat(b.attributes?.chapter || 0);
+                return chapterB - chapterA;
+            });
+
+            setChapters(fetchedChapters);
+        } catch (err) {
+            setError(`Failed to load chapters: ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Initial fetch of chapters
+    useEffect(() => {
+        fetchAllChapters();
+    }, [id]);
+
+    if (loading && chapters.length === 0) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
 
     return (
-        <div>
+        <div className='max-w-5xl m-auto'>
             <h1>{mangaDetails?.attributes?.title?.en || 'Untitled Manga'}</h1>
             <p>{mangaDetails?.attributes?.description?.en || 'No description available.'}</p>
             <h2>Chapters</h2>
-            <ul>
-                {paginatedChapters.map((chapter) => (
-                    <li key={chapter.id}>
+            <ul className='overflow-auto max-h-80'>
+                {chapters.map((chapter) => (
+                    <li key={chapter.id} className='text-white'>
                         <Link to={`/chapter/${chapter.id}`} className="text-blue-500 underline">
-                            Chapter {chapter.attributes?.chapter || 'Unknown'}: {chapter.attributes?.title || 'No Title'}
+                            Chapter {chapter.attributes?.chapter || 'Unknown'}: {chapter.attributes?.title || ''}
                         </Link>
                     </li>
                 ))}
             </ul>
-            <div>
-                <button onClick={handlePreviousPage} disabled={currentPage === 1}>
-                    Previous
-                </button>
-                <span> Page {currentPage} of {Math.ceil(chapters.length / chaptersPerPage)} </span>
-                <button onClick={handleNextPage} disabled={currentPage * chaptersPerPage >= chapters.length}>
-                    Next
-                </button>
-            </div>
         </div>
     );
 };
