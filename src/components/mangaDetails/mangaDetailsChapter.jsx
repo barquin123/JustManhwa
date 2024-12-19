@@ -11,8 +11,9 @@ const MangaDetailsChapter = () => {
     const [error, setError] = useState(null);
     const [nextChapter, setNextChapter] = useState(null);
     const [prevChapter, setPrevChapter] = useState(null);
+    const [preferredScanlationGroupId, setPreferredScanlationGroupId] = useState(null);
     const transLang = 'en'; // Translated language
-    // const offset = 0; // Offset for fetching all chapters
+
     useEffect(() => {
         const fetchChapterDetails = async () => {
             try {
@@ -24,21 +25,45 @@ const MangaDetailsChapter = () => {
                 const chapterData = chapterResponse.data.data;
                 const currentChapter = chapterData.attributes.chapter;
                 const mangaId = chapterData.relationships.find(rel => rel.type === 'manga')?.id;
-                const prevChapter = await axios.get(`https://mangareader-backend.onrender.com/api/manga/chapter?manga=${mangaId}&chapter=${Number(currentChapter) - 1}&translatedLanguage[]=${transLang}`);
-                const nextChapter = await axios.get(`https://mangareader-backend.onrender.com/api/manga/chapter?manga=${mangaId}&chapter=${Number(currentChapter) + 1}&translatedLanguage[]=${transLang}`);
-                // Check for next and previous chapters
-                const nextChapterId = nextChapter?.data?.data[0]?.id
-                const prevChapterId = prevChapter?.data?.data[0]?.id
-                // const next = nextChapter?.data?.data[0]?.id;
-               
-                setNextChapter(nextChapterId);
-                setPrevChapter(prevChapterId);
 
-                
+                // Extract scanlation group id for the current chapter
+                const currentScanlationGroupId = chapterData.relationships.find(
+                    (rel) => rel.type === 'scanlation_group'
+                )?.id;
+
+                if (currentScanlationGroupId) {
+                    setPreferredScanlationGroupId(currentScanlationGroupId); // Set the preferred scanlation group id
+                }
+
+                // Fetch previous and next chapters
+                const prevChapterResponse = await axios.get(`https://mangareader-backend.onrender.com/api/manga/chapter?manga=${mangaId}&chapter=${Number(currentChapter) - 1}&translatedLanguage[]=${transLang}`);
+                const nextChapterResponse = await axios.get(`https://mangareader-backend.onrender.com/api/manga/chapter?manga=${mangaId}&chapter=${Number(currentChapter) + 1}&translatedLanguage[]=${transLang}`);
+
+                // Check and find the preferred scanlation group in previous and next chapters
+                const prevChapterData = prevChapterResponse?.data?.data.find(
+                    (chapter) => {
+                        const scanlationGroupId = chapter.relationships.find(
+                            (rel) => rel.type === 'scanlation_group'
+                        )?.id;
+                        return scanlationGroupId === preferredScanlationGroupId; // Match with preferred scanlation group id
+                    }
+                );
+
+                const nextChapterData = nextChapterResponse?.data?.data.find(
+                    (chapter) => {
+                        const scanlationGroupId = chapter.relationships.find(
+                            (rel) => rel.type === 'scanlation_group'
+                        )?.id;
+                        return scanlationGroupId === preferredScanlationGroupId; // Match with preferred scanlation group id
+                    }
+                );
+
+                // If no preferred scanlation group, fallback to any available chapter
+                setPrevChapter(prevChapterData ? prevChapterData.id : prevChapterResponse?.data?.data[0]?.id);
+                setNextChapter(nextChapterData ? nextChapterData.id : nextChapterResponse?.data?.data[0]?.id);
 
                 // Fetch server info (second request)
                 const serverResponse = await axios.get(`https://mangareader-backend.onrender.com/api/manga/at-home/server/${id}`);
-
                 if (!serverResponse || !serverResponse.data) {
                     setError('No server data returned.');
                     return;
@@ -72,7 +97,7 @@ const MangaDetailsChapter = () => {
         };
 
         fetchChapterDetails();
-    }, [id]);
+    }, [id, preferredScanlationGroupId]);
 
     const handleNavigation = (chapterId) => {
         if (chapterId) navigate(`/chapter/${chapterId}`);
@@ -112,6 +137,7 @@ const MangaDetailsChapter = () => {
                     />
                 ))}
             </div>
+
             <div className="flex justify-between mt-4">
                 <button
                     disabled={prevChapter == null}

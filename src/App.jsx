@@ -4,6 +4,7 @@ import Home from './components/home/Home'
 import MangaDetails from './components/mangaDetails/MangaDetails'
 import MangaDetailsChapter from './components/mangaDetails/mangaDetailsChapter'
 import Header from './components/header/header'
+import Search from './components/header/search'
 function App() {
 
   const routerArray = [
@@ -22,6 +23,10 @@ function App() {
       {
         path: '/chapter/:id',
         element: <MangaDetailsChapter />,
+      },
+      {
+        path: '/search',
+        element: <Search />,
       },
   ]
 

@@ -25,16 +25,16 @@ const Home = () => {
         try {
             setLoading(true);
             setError(null);
-
+    
             const offset = (page - 1) * itemsPerPage;
             const response = await axios.get(
                 `https://mangareader-backend.onrender.com/api/manga/manga?originalLanguage[]=${originalLanguage}&limit=${itemsPerPage}&offset=${offset}`
             );
-
+    
             const manhwaDataWithDetails = await Promise.all(
                 response.data.data.map(async (manhwa) => {
                     const relationships = manhwa.relationships;
-
+    
                     // Fetch cover art
                     const coverRelationship = relationships.find((rel) => rel.type === 'cover_art');
                     let coverFileName = null;
@@ -48,18 +48,18 @@ const Home = () => {
                             console.error(`Error fetching cover for ${manhwa.id}:`, coverError);
                         }
                     }
-
+    
                     // Fetch author and artist names
                     const authors = relationships
                         .filter((rel) => rel.type === 'author')
                         .map((author) => author.attributes?.name)
                         .join(', ') || 'Unknown Author';
-
+    
                     const artists = relationships
                         .filter((rel) => rel.type === 'artist')
                         .map((artist) => artist.attributes?.name)
                         .join(', ') || 'Unknown Artist';
-
+    
                     return {
                         ...manhwa,
                         coverFileName,
@@ -68,6 +68,10 @@ const Home = () => {
                     };
                 })
             );
+    
+            // Sort by latest (assuming `attributes.updatedAt` exists)
+            manhwaDataWithDetails.sort((a, b) => new Date(b.attributes.updatedAt) - new Date(a.attributes.updatedAt));
+    
             setManhwaList(manhwaDataWithDetails);
         } catch (err) {
             setError(err.message);
@@ -75,6 +79,7 @@ const Home = () => {
             setLoading(false);
         }
     };
+    
 
     // Update page on URL or state change
     useEffect(() => {
