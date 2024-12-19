@@ -9,6 +9,7 @@ const MangaDetails = () => {
     const [chapters, setChapters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [hasEnglishTranslation, setHasEnglishTranslation] = useState(true); // New state for checking English chapters
     const apiLimit = 100; // API fetch limit
     const transLang = 'en'; // Translated language
 
@@ -27,7 +28,7 @@ const MangaDetails = () => {
                         `https://mangareader-backend.onrender.com/api/manga/cover/${coverRelationship.id}`
                     );
                     const fileName = coverResponse.data.data.attributes.fileName;
-                    const coverUrl = `https://uploads.mangadex.org/covers/${id}/${fileName}`;
+                    const coverUrl = `https://mangareader-backend.onrender.com/api/proxy-image/${id}/${fileName}`;
                     setCoverImage(coverUrl); // Set the cover image URL
                 }
 
@@ -52,6 +53,14 @@ const MangaDetails = () => {
                     );
                     const newChapters = response.data.data;
                     fetchedChapters = [...fetchedChapters, ...newChapters];
+                    console.log(newChapters.length)
+                   
+                    
+                    if (newChapters.length === 0) {
+                        setHasEnglishTranslation(false); // No English chapters found
+                    } else {
+                        setHasEnglishTranslation(true); // English chapters found
+                    }
 
                     if (newChapters.length < apiLimit) break;
 
@@ -121,6 +130,12 @@ const MangaDetails = () => {
                 </div>
             </div>
             <h2 className="font-bold text-xl">Chapters</h2>
+
+            {/* Show message if no English translations found */}
+            {!hasEnglishTranslation && (
+                <p className="text-red-500">No English translation available for this manga.</p>
+            )}
+
             <ul className="overflow-auto max-h-80 w-fit no-scrollbar">
                 {loading && <p>Loading chapters...</p>}
                 {chapters.map((chapter) => (
