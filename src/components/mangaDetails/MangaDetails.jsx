@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const MangaDetails = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
     const [mangaDetails, setMangaDetails] = useState(null);
     const [chapters, setChapters] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -68,10 +67,12 @@ const MangaDetails = () => {
 
         // First, check if manga details exist in localStorage
         const savedMangaDetails = localStorage.getItem('mangaDetails');
-        if (savedMangaDetails && !id) {
+        const savedChapters = localStorage.getItem('chapters');
+
+        if (savedMangaDetails && savedChapters && !id) {
             // If manga details are found in localStorage and no ID is in the URL, use the stored data
             setMangaDetails(JSON.parse(savedMangaDetails));
-            fetchAllChapters(); // Fetch chapters for the saved manga
+            setChapters(JSON.parse(savedChapters));
         } else {
             // Otherwise, fetch details from the API
             if (id) {
@@ -81,6 +82,14 @@ const MangaDetails = () => {
         }
 
     }, [id]); // Re-fetch when `id` changes
+
+    // Store manga details and chapters to localStorage when they are fetched
+    useEffect(() => {
+        if (mangaDetails && chapters.length > 0) {
+            localStorage.setItem('mangaDetails', JSON.stringify(mangaDetails));
+            localStorage.setItem('chapters', JSON.stringify(chapters));
+        }
+    }, [mangaDetails, chapters]);
 
     if (loading && chapters.length === 0) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
