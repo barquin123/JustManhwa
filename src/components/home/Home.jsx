@@ -1,25 +1,36 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Home = () => {
+    const itemsPerPage = 10;
+    const originalLanguage = 'ko';
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Get initial page from URL or localStorage
+    const getInitialPage = () => {
+        const params = new URLSearchParams(location.search);
+        return parseInt(params.get('page'), 10) || parseInt(localStorage.getItem('currentPage'), 10) || 1;
+    };
+
+    const [currentPage, setCurrentPage] = useState(getInitialPage);
     const [manhwaList, setManhwaList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [descriptionStates, setDescriptionStates] = useState({});
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const originalLanguage = 'ko';
 
+    // Fetch manhwa data
     const fetchManhwaData = async (page) => {
         try {
             setLoading(true);
             setError(null);
 
             const offset = (page - 1) * itemsPerPage;
-            const response = await axios.get(`https://mangareader-backend.onrender.com/api/manga/manga?originalLanguage[]=${originalLanguage}&limit=${itemsPerPage}&offset=${offset}`);
+            const response = await axios.get(
+                `https://mangareader-backend.onrender.com/api/manga/manga?originalLanguage[]=${originalLanguage}&limit=${itemsPerPage}&offset=${offset}`
+            );
 
-            // Fetch cover images, authors, and artists
             const manhwaDataWithDetails = await Promise.all(
                 response.data.data.map(async (manhwa) => {
                     const relationships = manhwa.relationships;
@@ -29,7 +40,9 @@ const Home = () => {
                     let coverFileName = null;
                     if (coverRelationship) {
                         try {
-                            const coverResponse = await axios.get(`https://mangareader-backend.onrender.com/api/manga/cover/${coverRelationship.id}`);
+                            const coverResponse = await axios.get(
+                                `https://mangareader-backend.onrender.com/api/manga/cover/${coverRelationship.id}`
+                            );
                             coverFileName = coverResponse.data.data.attributes.fileName;
                         } catch (coverError) {
                             console.error(`Error fetching cover for ${manhwa.id}:`, coverError);
@@ -63,9 +76,18 @@ const Home = () => {
         }
     };
 
+    // Update page on URL or state change
     useEffect(() => {
+        localStorage.setItem('currentPage', currentPage);
+
+        const params = new URLSearchParams(location.search);
+        if (parseInt(params.get('page'), 10) !== currentPage) {
+            params.set('page', currentPage);
+            navigate({ search: params.toString() }, { replace: true });
+        }
+
         fetchManhwaData(currentPage);
-    }, [currentPage]);
+    }, [currentPage, navigate, location.search]);
 
     const handleNextPage = () => {
         setCurrentPage((prevPage) => prevPage + 1);
@@ -93,7 +115,6 @@ const Home = () => {
 
     return (
         <div className='max-w-screen-lg m-auto'>
-            {/* <h1 className='text-center font-bold text-2xl mb-6'>Manhwa List</h1> */}
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
 
@@ -117,7 +138,7 @@ const Home = () => {
                             {descriptionStates[manhwa.id]
                                 ? manhwa.attributes?.description?.en || 'No description available.'
                                 : truncatedDescription(manhwa.attributes?.description?.en, 100)}
-                        </p> 
+                        </p>
                         {manhwa.attributes?.description?.en &&
                             manhwa.attributes.description.en.length > 100 && (
                                 <button onClick={() => toggleDescription(manhwa.id)}>
