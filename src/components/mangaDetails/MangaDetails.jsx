@@ -9,7 +9,6 @@ const MangaDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const apiLimit = 100; // API fetch limit
-    const transLang = 'en'; // Translated language
 
     // Fetch manga details
     useEffect(() => {
@@ -25,9 +24,7 @@ const MangaDetails = () => {
             }
         };
         fetchMangaDetails();
-    }, [id]);
-
-    // Fetch all chapters
+         // Fetch all chapters
     const fetchAllChapters = async () => {
         let offset = 0;
         let fetchedChapters = [];
@@ -37,7 +34,7 @@ const MangaDetails = () => {
             // Keep fetching until all chapters are retrieved
             while (true) {
                 const response = await axios.get(
-                    `https://mangareader-backend.onrender.com/api/manga/chapter?manga=${id}&limit=${apiLimit}&translatedLanguage[]=${transLang}&offset=${offset}`
+                    `https://mangareader-backend.onrender.com/api/manga/chapter?manga=${id}&limit=${apiLimit}&offset=${offset}`
                 );
                 const newChapters = response.data.data;
                 fetchedChapters = [...fetchedChapters, ...newChapters];
@@ -62,10 +59,7 @@ const MangaDetails = () => {
             setLoading(false);
         }
     };
-
-    // Initial fetch of chapters
-    useEffect(() => {
-        fetchAllChapters();
+    fetchAllChapters();
     }, [id]);
 
     if (loading && chapters.length === 0) return <p>Loading...</p>;
@@ -77,6 +71,7 @@ const MangaDetails = () => {
             <p>{mangaDetails?.attributes?.description?.en || 'No description available.'}</p>
             <h2>Chapters</h2>
             <ul className='overflow-auto max-h-80'>
+                { loading && <p>Loading chapters...</p>}
                 {chapters.map((chapter) => (
                     <li key={chapter.id} className='text-white'>
                         <Link to={`/chapter/${chapter.id}`} className="text-blue-500 underline">

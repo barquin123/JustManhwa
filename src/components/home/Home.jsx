@@ -69,11 +69,13 @@ const Home = () => {
 
     const handleNextPage = () => {
         setCurrentPage((prevPage) => prevPage + 1);
+        window.scrollTo(0, 0);
     };
 
     const handlePreviousPage = () => {
         if (currentPage > 1) {
             setCurrentPage((prevPage) => prevPage - 1);
+            window.scrollTo(0, 0);
         }
     };
 
