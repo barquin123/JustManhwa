@@ -10,6 +10,7 @@ const MangaDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const apiLimit = 100; // API fetch limit
+    const transLang = 'en'; // Translated language
 
     // Fetch manga details and chapters from the API
     useEffect(() => {
@@ -39,7 +40,7 @@ const MangaDetails = () => {
                 // Keep fetching until all chapters are retrieved
                 while (true) {
                     const response = await axios.get(
-                        `https://mangareader-backend.onrender.com/api/manga/chapter?manga=${id}&limit=${apiLimit}&offset=${offset}`
+                        `https://mangareader-backend.onrender.com/api/manga/chapter?manga=${id}&translatedLanguage[]=${transLang}&limit=${apiLimit}&offset=${offset}`
                     );
                     const newChapters = response.data.data;
                     fetchedChapters = [...fetchedChapters, ...newChapters];
