@@ -121,6 +121,7 @@ const MangaDetails = () => {
                     <img
                         src={coverImage}
                         alt={`${mangaDetails?.attributes?.title?.en || 'Manga'} cover`}
+                        loading="lazy"
                         className="max-w-60 object-cover mb-4"
                     />
                 )}

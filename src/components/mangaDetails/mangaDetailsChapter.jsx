@@ -133,6 +133,7 @@ const MangaDetailsChapter = () => {
                         key={index}
                         src={image}
                         alt={`Page ${index + 1}`}
+                        loading="lazy"
                         className="w-full object-contain"
                     />
                 ))}

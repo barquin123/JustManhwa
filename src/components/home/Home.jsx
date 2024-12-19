@@ -131,6 +131,7 @@ const Home = () => {
                                 <img
                                     className='max-w-96 m-auto'
                                     src={`https://mangareader-backend.onrender.com/api/proxy-image/${manhwa.id}/${manhwa.coverFileName}`}
+                                    loading="lazy"
                                     alt={`${manhwa.attributes?.title?.en} cover`}
                                 />
                             ) : (
