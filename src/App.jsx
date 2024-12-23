@@ -5,6 +5,7 @@ import MangaDetails from './components/mangaDetails/MangaDetails'
 import MangaDetailsChapter from './components/mangaDetails/mangaDetailsChapter'
 import Header from './components/header/header'
 import Search from './components/header/search'
+import { MangaProvider } from './components/providers/mangaProvider'
 function App() {
 
   const routerArray = [
@@ -33,12 +34,12 @@ function App() {
   const routesElement = useRoutes(routerArray)
 
   return (
-    <>
+    <MangaProvider>
       <div className="">
             <Header />
             {routesElement}
       </div>
-    </>
+    </MangaProvider>
   )
 }
 
