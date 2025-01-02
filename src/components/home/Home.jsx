@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { MangaContext } from '../providers/mangaProvider';
 import { Link } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ const Home = () => {
     const itemsPerPage = 10;
 
     const [currentPage, setCurrentPage] = useState(1);
+    const [descriptionStates, setDescriptionStates] = useState({});
 
     const paginatedData = Array.isArray(mangaData)
         ? mangaData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
@@ -17,9 +18,9 @@ const Home = () => {
         setCurrentPage(newPage);
         window.scrollTo(0, 0);
 
-        // Check if we need more manga data
+        // Check if more manga data is needed
         if (newPage * itemsPerPage > mangaData.length && initialFetchDone) {
-            fetchAdditionalManga(mangaData.length, 10); // Fetch 10 more mangas
+            fetchAdditionalManga(mangaData.length, 10);
         }
     };
 
@@ -30,8 +31,19 @@ const Home = () => {
         }
     };
 
+    const toggleDescription = (id) => {
+        setDescriptionStates((prevStates) => ({
+            ...prevStates,
+            [id]: !prevStates[id],
+        }));
+    };
+
+    const truncatedDescription = (text, length = 100) => {
+        if (!text) return '';
+        return text.length > length ? text.slice(0, length) + '...' : text;
+    };
+
     useEffect(() => {
-        // Ensure we always have enough data to display the next page
         if (
             initialFetchDone &&
             paginatedData.length === 0 &&
@@ -45,6 +57,7 @@ const Home = () => {
         <div className="max-w-screen-lg m-auto">
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
+
             <ul className="flex flex-wrap gap-4 justify-evenly">
                 {paginatedData.map((manhwa) => (
                     <li className="min-h-96 mb-5 max-w-[384px]" key={manhwa.id}>
@@ -61,7 +74,21 @@ const Home = () => {
                             )}
                         </Link>
                         <h2 className="font-bold text-xl">{manhwa.attributes?.title?.en || 'Untitled'}</h2>
-                        <p>{manhwa.attributes?.description?.en || 'No description available.'}</p>
+                        <p>
+                            <strong>Description:</strong>{' '}
+                            {descriptionStates[manhwa.id]
+                                ? manhwa.attributes?.description?.en || 'No description available.'
+                                : truncatedDescription(manhwa.attributes?.description?.en, 100)}
+                        </p>
+                        {manhwa.attributes?.description?.en &&
+                            manhwa.attributes.description.en.length > 100 && (
+                                <button
+                                    onClick={() => toggleDescription(manhwa.id)}
+                                    className="text-white underline"
+                                >
+                                    {descriptionStates[manhwa.id] ? 'See Less' : 'See More'}
+                                </button>
+                            )}
                         <p>
                             <strong>Author(s):</strong> {manhwa.authors}
                         </p>
@@ -71,6 +98,7 @@ const Home = () => {
                     </li>
                 ))}
             </ul>
+
             <div className="text-center mt-6">
                 <button
                     onClick={handlePreviousPage}
