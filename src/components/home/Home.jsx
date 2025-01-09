@@ -1,21 +1,39 @@
 import { useContext, useState, useEffect } from 'react';
 import { MangaContext } from '../providers/mangaProvider';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Home = () => {
     const { mangaData, loading, error, fetchAdditionalManga, initialFetchDone } = useContext(MangaContext);
     const itemsPerPage = 10;
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    const [currentPage, setCurrentPage] = useState(1);
+    // Retrieve the initial page from the URL or local storage
+    const getInitialPage = () => {
+        const params = new URLSearchParams(location.search);
+        return parseInt(params.get('page'), 10) || parseInt(localStorage.getItem('currentPage'), 10) || 1;
+    };
+
+    const [currentPage, setCurrentPage] = useState(getInitialPage);
     const [descriptionStates, setDescriptionStates] = useState({});
 
     const paginatedData = Array.isArray(mangaData)
         ? mangaData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
         : [];
 
+    // Save the current page to localStorage and update the URL
+    const updatePageState = (newPage) => {
+        setCurrentPage(newPage);
+        localStorage.setItem('currentPage', newPage);
+
+        const params = new URLSearchParams(location.search);
+        params.set('page', newPage);
+        navigate({ search: params.toString() }, { replace: true });
+    };
+
     const handleNextPage = () => {
         const newPage = currentPage + 1;
-        setCurrentPage(newPage);
+        updatePageState(newPage);
         window.scrollTo(0, 0);
 
         // Check if more manga data is needed
@@ -26,7 +44,7 @@ const Home = () => {
 
     const handlePreviousPage = () => {
         if (currentPage > 1) {
-            setCurrentPage((prevPage) => prevPage - 1);
+            updatePageState(currentPage - 1);
             window.scrollTo(0, 0);
         }
     };
@@ -43,6 +61,7 @@ const Home = () => {
         return text.length > length ? text.slice(0, length) + '...' : text;
     };
 
+    // Ensure page consistency when component mounts or dependencies change
     useEffect(() => {
         if (
             initialFetchDone &&
