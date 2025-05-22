@@ -9,3 +9,8 @@ clone the repo
 npm install + npm run dev
 
 see for your self 
+
+### site
+
+```sh
+https://mangareader-cream.netlify.app/
